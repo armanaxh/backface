@@ -5,7 +5,6 @@ pipeline {
   environment {
     imagename = "${registryURL}/deployer:latest"
     registryCredential = 'jenkins-user'
-    dockerImage = ''
   }
 
   agent {
@@ -48,8 +47,8 @@ spec:
         container('dind') {
               sh """
                 cd $project
-                docker build -f Dockerfile -t ${registryURL}/deployer:latest .
-                docker push ${registryURL}/deployer:latest
+                docker build -f Dockerfile -t ${imagename} .
+                docker push ${imagename}
               """
         }
             // ${BUILD_NUMBER} is better for image but ...

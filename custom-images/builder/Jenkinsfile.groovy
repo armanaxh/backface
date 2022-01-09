@@ -4,9 +4,8 @@ def project = 'custom-images/builder'
 
 pipeline {
   environment {
-    imagename = "${registryURL}/deployer:latest"
+    imagename = "${registryURL}/builder:latest"
     registryCredential = 'jenkins-user'
-    dockerImage = ''
   }
 
   agent {
@@ -49,8 +48,8 @@ spec:
         container('dind') {
               sh """
                 cd $project
-                docker build -f Dockerfile -t ${registryURL}/builder:latest .
-                docker push ${registryURL}/builder:latest
+                docker build -f Dockerfile -t ${imagename} .
+                docker push ${imagename}
               """
         }
             // ${BUILD_NUMBER} is better for image but ...
