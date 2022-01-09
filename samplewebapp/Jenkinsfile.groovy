@@ -86,7 +86,7 @@ spec:
                 sh """
                   cd $project
                   echo Deploying samplewebapp on kubernetes
-                  awk 'FNR==1{print "---"}1' kubernetes/*.yaml | sed s/IMAGE_NAME/AAAA/g - | kubectl apply -n default -f -
+                  awk 'FNR==1{print "---"}1' kubernetes/*.yaml | sed s/IMAGE_NAME/"${imagename}:${BUILD_NUMBER}"/g - | kubectl apply -n default -f -
                 """
           }
             // ${BUILD_NUMBER} is better for image but ...

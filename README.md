@@ -4,7 +4,6 @@ Simple Kubernetes deployment with Jenkins! And my first experience with Jenkins.
 
 ## Installation and preparation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
 
 ### Minikube setup
 
