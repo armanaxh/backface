@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: samplewebapp
+  annotations:
+    kubernetes.io/tls-acme: "true" # for cert manager
+spec:
+  # tls:
+  #   - hosts:
+  #       - samplewebapp.example.org
+  #     secretName: samplewebapp-ingress-tls
+
+  rules:
+    - host: samplewebapp.example.org
+      http:
+        paths:
+          - backend:
+              service:
+                name: samplewebapp
+                port:
+                  name: http
+            path: /
+            pathType: "Prefix"
+          - backend:
+              service:
+                name: samplewebapp
+                port:
+                  name: http
+            path: /samplewebapp
+            pathType: "Prefix"
+          # - backend: # should handle in complex services with dependency
+          #     service:
+          #       name: gisheh-admin
+          #       port:
+          #         name: http
+          #   path: /healthz
+          #   pathType: "Prefix"
