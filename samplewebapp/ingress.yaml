@@ -21,17 +21,10 @@ spec:
                   name: http
             path: /
             pathType: "Prefix"
-          - backend:
+          - backend: # depends on the application type; we don't need that
               service:
                 name: samplewebapp
                 port:
                   name: http
-            path: /samplewebapp
+            path: /health
             pathType: "Prefix"
-          # - backend: # should handle in complex services with dependency
-          #     service:
-          #       name: gisheh-admin
-          #       port:
-          #         name: http
-          #   path: /healthz
-          #   pathType: "Prefix"
