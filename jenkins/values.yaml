@@ -345,45 +345,6 @@ controller:
       jobs-config: |
         jobs:
           - script: >
-              pipelineJob('build-deployer') {
-                  properties {
-                          disableConcurrentBuilds()
-                  }
-                  definition {
-                      cpsScm {
-                          scriptPath 'build.groovy'
-                          scm {
-                            git {
-                                remote {
-                                  credentials 'jenkins-user'
-                                  url 'https://github.com/armanaxh/test.git'
-                                }
-                                branch 'main'
-                                extensions {}
-                            }
-                          }
-                      }
-                  }
-              }
-
-          - script: >
-              pipelineJob("Seed or update all pipelines") {
-              definition {
-                  cpsScm {
-                      scriptPath 'Jenkinsfile'
-                      scm {
-                          git{
-                            remote {
-                              credentials 'jenkins-user'
-                              url 'https://github.com/armanaxh/test.git'
-                            }
-                            branch("*/main")
-                          }
-                      }
-                  }
-                }
-              }
-          - script: >
               pipelineJob("Build deployer image") {
                 properties {
                         disableConcurrentBuilds()
@@ -404,6 +365,68 @@ controller:
                   }
               }
 
+          - script: >
+              pipelineJob("Build builder image") {
+                properties {
+                        disableConcurrentBuilds()
+                }
+                definition {
+                    cpsScm {
+                        scriptPath 'custom-images/builder/Jenkinsfile.groovy'
+                        scm {
+                            git{
+                              remote {
+                                credentials 'jenkins-user'
+                                url("https://github.com/armanaxh/duckface.git")
+                              }
+                              branch("main")
+                            }
+                        }
+                    }
+                  }
+              }
+
+          - script: >
+              pipelineJob("Build and Deploy myapp image") {
+                properties {
+                        disableConcurrentBuilds()
+                }
+                definition {
+                    cpsScm {
+                        scriptPath 'my-app/Jenkinsfile.groovy'
+                        scm {
+                            git{
+                              remote {
+                                credentials 'jenkins-user'
+                                url("https://github.com/armanaxh/duckface.git")
+                              }
+                              branch("main")
+                            }
+                        }
+                    }
+                  }
+              }
+
+          - script: >
+              pipelineJob("Build and Deploy samplewebapp image") {
+                properties {
+                        disableConcurrentBuilds()
+                }
+                definition {
+                    cpsScm {
+                        scriptPath 'samplewebapp/Jenkinsfile.groovy'
+                        scm {
+                            git{
+                              remote {
+                                credentials 'jenkins-user'
+                                url("https://github.com/armanaxh/duckface.git")
+                              }
+                              branch("main")
+                            }
+                        }
+                    }
+                  }
+              }
 
     # Ignored if securityRealm is defined in controller.JCasC.configScripts and
     # ignored if controller.enableXmlConfig=true as controller.securityRealm takes precedence
