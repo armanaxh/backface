@@ -1,5 +1,6 @@
 def registryURL = 'registry:5000'
 def project = 'my-app'
+def MAVEN_REPO = 'repo'
 
 pipeline {
   environment {
@@ -55,6 +56,48 @@ spec:
   }
 
   stages {
+      // some example of stages
+      stage('Test') {
+          steps {
+              git(
+                  url: 'https://github.com/armanaxh/duckface.git',
+                  credentialsId: 'jenkins-user',
+                  branch: 'main'
+              )
+              container('dind') {
+                sh """
+                  cd $project
+                  mvn -DfailIfNoTests=false test -Dtest='*Test,*IT'
+                """
+              }
+          }
+      }
+
+      stage('Build') {
+        steps {
+            container('dind') {
+              sh """
+                cd $project
+                mvn install -DskipTests=true
+              """
+          }
+        }
+      }
+      stage('Push Jar') {
+        steps {
+            container('dind') {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') { // I want deploy nexus, but I couldn't find time! pass in fail 
+                // I don't have maven repo :) sorry!
+                sh """
+                  cd $project
+                  mvn deploy -DaltDeploymentRepository=nexus-releases::default::${MAVEN_REPO} -DskipTests=true
+                """
+              }
+          }
+        }
+      }
+
+
     stage('Build Docker image') {
       steps {
           git(
