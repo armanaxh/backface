@@ -49,7 +49,7 @@ spec:
     resources:
       requests:
         ephemeral-storage: "4Gi"
-  serviceAccountName: jenkins # TODO Temp I should create new one
+  serviceAccountName: deployer
 '''
     }
   }
@@ -86,7 +86,7 @@ spec:
                 sh """
                   cd $project
                   echo Deploying my-app on kubernetes
-                  sed "s/IMAGE_NAME/${imagename}:${BUILD_NUMBER}/g" kubernetes/cronjob.yaml | kubectl apply -f -
+                  awk 'FNR==1{print "---"}1' kubernetes/*.yaml | sed s#IMAGE_NAME#"${imagename}:${BUILD_NUMBER}"#g - | kubectl apply -n default -f -
                 """
           }
             // ${BUILD_NUMBER} is better for image but ...

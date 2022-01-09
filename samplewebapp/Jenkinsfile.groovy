@@ -55,24 +55,24 @@ spec:
   }
 
   stages {
-    // stage('Build Docker image') {
-    //   steps {
-    //       git(
-    //           url: 'https://github.com/armanaxh/duckface.git',
-    //           credentialsId: 'jenkins-user',
-    //           branch: 'main'
-    //       )
+    stage('Build Docker image') {
+      steps {
+          git(
+              url: 'https://github.com/armanaxh/duckface.git',
+              credentialsId: 'jenkins-user',
+              branch: 'main'
+          )
 
-    //       container('dind') {
-    //             sh """
-    //               cd $project
-    //               docker build -f Dockerfile -t ${imagename}:${BUILD_NUMBER} .
-    //               docker push ${imagename}:${BUILD_NUMBER}
-    //             """
-    //       }
-    //         // ${BUILD_NUMBER} is better for image but ...
-    //   }
-    // }
+          container('dind') {
+                sh """
+                  cd $project
+                  docker build -f Dockerfile -t ${imagename}:${BUILD_NUMBER} .
+                  docker push ${imagename}:${BUILD_NUMBER}
+                """
+          }
+            // ${BUILD_NUMBER} is better for image but ...
+      }
+    }
 
     stage('Deploy') {
       steps {
@@ -86,7 +86,7 @@ spec:
                 sh """
                   cd $project
                   echo Deploying samplewebapp on kubernetes
-                  awk 'FNR==1{print "---"}1' kubernetes/*.yaml | sed s/IMAGE_NAME/"${imagename}:${BUILD_NUMBER}"/g - | kubectl apply -n default -f -
+                  awk 'FNR==1{print "---"}1' kubernetes/*.yaml | sed s#IMAGE_NAME#"${imagename}:${BUILD_NUMBER}"#g - | kubectl apply -n default -f -
                 """
           }
             // ${BUILD_NUMBER} is better for image but ...
