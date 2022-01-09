@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: samplewebapp
+  name: samplewebapp
+spec:
+  internalTrafficPolicy: Cluster
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: samplewebapp
+  sessionAffinity: None
+  type: ClusterIP
