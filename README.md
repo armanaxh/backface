@@ -72,21 +72,11 @@ To make Jenkins accessible outside the Kubernetes cluster for test you can use p
 ```bash
 kubectl port-forward svc/jenkins 8080:8080 --address 0.0.0.0 -n jenkins
 ```
+### Project trade-offs
 
-## build and deploy custom-images CI/CD
+- [Kubernetes services designs](https://github.com/armanaxh/duckface/tree/main/samplewebapp)
 
-## build and deploy samplewebapp CI/CD
+- [Jenkins desings](https://github.com/armanaxh/duckface/tree/main/jenkins)
 
-## build and deploy myapp CI/CD
-
-
-
-
-
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+-----
+Made by Arman Absalan (@armanaxh)
