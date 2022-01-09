@@ -419,6 +419,7 @@ controller:
     authorizationStrategy: |-
       loggedInUsersCanDoAnything:
         allowAnonymousRead: false
+
   # Optionally specify additional init-containers
   customInitContainers: []
   # - name: custom-init
