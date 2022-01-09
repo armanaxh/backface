@@ -20,3 +20,10 @@ On the other hand, If our traffic policy is set on Local in each nodes loadbalan
 When we set Ingress Traffic Policies on Local, we can fill real-IP in our edge Ngnix. But In another solution, we don't have real-IP. Unless other 7-layer services fill on the HTTP headers before cluster. For example, CDNs fill real-IP on HTTP headers.
 
 For service stability, we have different approaches depending on the service type. In simple services like samplewebapp, we can scale resources. You can find auto-scaler in the Kubernetes subdirectory. It scales service when the load is high. but It's not a good solution sometimes because we should have saved resources. (On AWS, it's ok)
+
+Anti-affinity: Defining a pod anti-affinity is the next step in increasing your application's availability. A pod anti-affinity guarantees the distribution of the pods across different nodes in your Kubernetes cluster. And if some nodes are faced with the problem, your application is running on other ones at the moment. Also, In this way, resources are used relatively between nodes. Some cloud providers give worker nodes with Over Commit Resources. So when you are in the high load better to distribute your replicas. And better for resource-type balances.
+
+RollingUpdate: Rolling updates allow Deployments' update to take place with zero downtime by incrementally updating Pods instances with new ones. I set maxSurge 3 and maxUnavailable depends on application this metrics should change.
+
+ReadinessProbe & LivenessProbe: Both liveness & readiness probes are used to control the health of an application. The failing liveness probe will restart the container, whereas the failing readiness probe will stop our application from serving traffic.
+I enable /health in sample application to check health. But in a complex application, dependency should be checked in readiness. For example, DBs, Kafka, ...

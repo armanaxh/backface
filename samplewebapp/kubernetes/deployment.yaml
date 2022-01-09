@@ -23,7 +23,7 @@ spec:
       containers:
       - image: IMAGE_NAME
         name: samplewebapp
-        imagePullPolicy: Always # IfNotPresent
+        imagePullPolicy: IfNotPresent
         ports:
         - name: http
           protocol: TCP
