@@ -31,27 +31,28 @@ spec:
     resources:
       requests:
         ephemeral-storage: "4Gi"
+  serviceAccountName: jenkins # temp I should create new one
 '''
     }
   }
 
   stages {
-    stage('Test') {
-      steps {
-          git(
-              url: 'https://github.com/armanaxh/duckface.git',
-              credentialsId: 'jenkins-user',
-              branch: 'main'
-          )
-          container('dind') {
-            configFileProvider([configFile(fileId: 'MAVEN_SETTINGS_XML', variable: 'MAVEN_SETTINGS')]) {
-              sh """
-                mvn -s ${MAVEN_SETTINGS} -DfailIfNoTests=false test -Dtest='*Test,*IT'
-              """
-            }
-        }
-      }
-    }
+    // stage('Test') {
+    //   steps {
+    //       git(
+    //           url: 'https://github.com/armanaxh/duckface.git',
+    //           credentialsId: 'jenkins-user',
+    //           branch: 'main'
+    //       )
+    //       container('dind') {
+    //         configFileProvider([configFile(fileId: 'MAVEN_SETTINGS_XML', variable: 'MAVEN_SETTINGS')]) {
+    //           sh """
+    //             mvn -s ${MAVEN_SETTINGS} -DfailIfNoTests=false test -Dtest='*Test,*IT'
+    //           """
+    //         }
+    //     }
+    //   }
+    // }
 
 
       //     stage('Build') {
@@ -91,6 +92,25 @@ spec:
                   cd $project
                   docker build -f Dockerfile -t ${imagename} .
                   docker push ${imagename}
+                """
+          }
+            // ${BUILD_NUMBER} is better for image but ...
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+          git(
+              url: 'https://github.com/armanaxh/duckface.git',
+              credentialsId: 'jenkins-user',
+              branch: 'main'
+          )
+
+          container('dind') {
+                sh """
+                  cd $project
+                  echo Deploying my-app on kubernetes
+                  kubectl apply -f kubernetes/*
                 """
           }
             // ${BUILD_NUMBER} is better for image but ...
