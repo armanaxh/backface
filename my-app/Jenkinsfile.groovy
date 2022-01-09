@@ -36,7 +36,49 @@ spec:
   }
 
   stages {
-    stage('Build') {
+    stage('Test') {
+      steps {
+          git(
+              url: 'https://github.com/armanaxh/duckface.git',
+              credentialsId: 'jenkins-user',
+              branch: 'main'
+          )
+          container('dind') {
+            configFileProvider([configFile(fileId: 'MAVEN_SETTINGS_XML', variable: 'MAVEN_SETTINGS')]) {
+              sh """
+                mvn -s ${MAVEN_SETTINGS} -DfailIfNoTests=false test -Dtest='*Test,*IT'
+              """
+            }
+        }
+      }
+    }
+
+
+      //     stage('Build') {
+      //   steps {
+      //       container('dind') {
+      //            configFileProvider([configFile(fileId: 'MAVEN_SETTINGS_XML', variable: 'MAVEN_SETTINGS')]) {
+      //                sh """
+      //                  mvn -s ${MAVEN_SETTINGS} install -DskipTests=true
+      //                """
+      //           }
+      //     }
+      //   }
+      // }
+      // stage('Push Jar') {
+      //   steps {
+      //       container('dind') {
+      //         configFileProvider([configFile(fileId: 'MAVEN_SETTINGS_XML', variable: 'MAVEN_SETTINGS')]) {
+      //           sh """
+      //             mvn deploy -s $MAVEN_SETTINGS -DaltDeploymentRepository=nexus-releases::default::${MAVEN_REPO} -DskipTests=true
+      //           """
+      //         }
+      //     }
+      //   }
+      // }
+
+
+    stage('Build Docker image') {
       steps {
           git(
               url: 'https://github.com/armanaxh/duckface.git',
@@ -44,13 +86,13 @@ spec:
               branch: 'main'
           )
 
-        container('dind') {
-              sh """
-                cd $project
-                docker build -f Dockerfile -t ${imagename} .
-                docker push ${imagename}
-              """
-        }
+          container('dind') {
+                sh """
+                  cd $project
+                  docker build -f Dockerfile -t ${imagename} .
+                  docker push ${imagename}
+                """
+          }
             // ${BUILD_NUMBER} is better for image but ...
       }
     }
