@@ -8,7 +8,7 @@ RUN tar xvfz apache*.tar.gz
 RUN rm apache-tomcat-10.0.14.tar.gz # review
 RUN mv apache-tomcat-10.0.14/* /opt/tomcat/.
 RUN yum -y install java
-RUN java -version  # cleaning after update and install 
+RUN java -version  # TODO cleaning after update and install
 
 WORKDIR /opt/tomcat/webapps
 RUN curl -O -L https://tomcat.apache.org/tomcat-8.0-doc/appdev/sample/sample.war

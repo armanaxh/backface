@@ -21,7 +21,7 @@ spec:
         app: samplewebapp
     spec:
       containers:
-      - image: registry:5000/tomcat:latest
+      - image: IMAGE_NAME
         name: samplewebapp
         imagePullPolicy: Always # IfNotPresent
         ports:
