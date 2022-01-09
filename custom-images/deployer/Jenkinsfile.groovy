@@ -19,6 +19,7 @@ spec:
     command:
       - dockerd-entrypoint.sh
       - "--insecure-registry=registry:5000"
+      # - "--registry-mirror=$registryMirror" # TODO for better performance and insite image catch
     securityContext:
       privileged: true
     env:

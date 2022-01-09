@@ -3,7 +3,7 @@ def project = 'my-app'
 
 pipeline {
   environment {
-    imagename = "${registryURL}/my-app:latest"
+    imagename = "${registryURL}/my-app"
     registryCredential = 'jenkins-user'
   }
 
@@ -14,11 +14,13 @@ kind: Pod
 spec:
   containers:
   - name: dind
-    image: docker:stable-dind # registry:5000/builder:latest
+    image: registry:5000/builder:latest
     imagePullPolicy: IfNotPresent
     command:
       - dockerd-entrypoint.sh
       - "--insecure-registry=registry:5000"
+      # - "--registry-mirror=$registryMirror" # TODO for better performance and insite image catch
+
     securityContext:
       privileged: true
     env:
@@ -31,54 +33,28 @@ spec:
     resources:
       requests:
         ephemeral-storage: "4Gi"
-  serviceAccountName: jenkins # temp I should create new one
+  - name: deployer
+    image: registry:5000/deployer:latest
+    imagePullPolicy: IfNotPresent
+    tty: true
+    command:
+      - /bin/cat
+    env:
+      - name: http_proxy
+        value: http://proxy.cafebazaar.org:3128
+      - name: https_proxy
+        value: http://proxy.cafebazaar.org:3128
+      - name: no_proxy
+        value: "*.test.example.com,.example2.com,localhost,127.0.0.1,10.96.0.0/12,192.168.59.0/24,192.168.39.0/24,registry,local,registry.local"
+    resources:
+      requests:
+        ephemeral-storage: "4Gi"
+  serviceAccountName: jenkins # TODO Temp I should create new one
 '''
     }
   }
 
   stages {
-    // stage('Test') {
-    //   steps {
-    //       git(
-    //           url: 'https://github.com/armanaxh/duckface.git',
-    //           credentialsId: 'jenkins-user',
-    //           branch: 'main'
-    //       )
-    //       container('dind') {
-    //         configFileProvider([configFile(fileId: 'MAVEN_SETTINGS_XML', variable: 'MAVEN_SETTINGS')]) {
-    //           sh """
-    //             mvn -s ${MAVEN_SETTINGS} -DfailIfNoTests=false test -Dtest='*Test,*IT'
-    //           """
-    //         }
-    //     }
-    //   }
-    // }
-
-
-      //     stage('Build') {
-      //   steps {
-      //       container('dind') {
-      //            configFileProvider([configFile(fileId: 'MAVEN_SETTINGS_XML', variable: 'MAVEN_SETTINGS')]) {
-      //                sh """
-      //                  mvn -s ${MAVEN_SETTINGS} install -DskipTests=true
-      //                """
-      //           }
-      //     }
-      //   }
-      // }
-      // stage('Push Jar') {
-      //   steps {
-      //       container('dind') {
-      //         configFileProvider([configFile(fileId: 'MAVEN_SETTINGS_XML', variable: 'MAVEN_SETTINGS')]) {
-      //           sh """
-      //             mvn deploy -s $MAVEN_SETTINGS -DaltDeploymentRepository=nexus-releases::default::${MAVEN_REPO} -DskipTests=true
-      //           """
-      //         }
-      //     }
-      //   }
-      // }
-
-
     stage('Build Docker image') {
       steps {
           git(
@@ -90,8 +66,8 @@ spec:
           container('dind') {
                 sh """
                   cd $project
-                  docker build -f Dockerfile -t ${imagename} .
-                  docker push ${imagename}
+                  docker build -f Dockerfile -t ${imagename}:${BUILD_NUMBER} .
+                  docker push ${imagename}:${BUILD_NUMBER}
                 """
           }
             // ${BUILD_NUMBER} is better for image but ...
@@ -106,11 +82,11 @@ spec:
               branch: 'main'
           )
 
-          container('dind') {
+          container('deployer') {
                 sh """
                   cd $project
                   echo Deploying my-app on kubernetes
-                  kubectl apply -f kubernetes/*
+                  sed "s/IMAGE_NAME/${imagename}:${BUILD_NUMBER}/g" kubernetes/cronjob.yaml | kubectl apply -f -
                 """
           }
             // ${BUILD_NUMBER} is better for image but ...
